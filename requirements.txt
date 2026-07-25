@@ -1,5 +1,4 @@
-streamlit==1.36.0
+streamlit
 pandas
-fyers-apiv3
 requests
-Pillow==10.2.0
+fyers-apiv3
