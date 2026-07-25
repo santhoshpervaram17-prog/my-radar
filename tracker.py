@@ -50,7 +50,7 @@ if "access_token" not in st.session_state:
 
 APP_ID = "Y3YF5DNOVV-100"                # <--- LINE 40: Paste Fyers App ID (e.g., "ABC123XYZ-100")
 SECRET_KEY = "5GNRMNWCDG"            # <--- LINE 41: Paste Fyers Secret Key (Found next to App ID)
-REDIRECT_URI = "https://myradar.streamlit.app/"          # <--- LINE 42: URL of your dashboard (e.g., "https://my-radar.streamlit.app/" or "http://localhost:8501/")
+REDIRECT_URI = "https://myradar.streamlit.app/"          # <--- MUST MATCH FYERS EXACTLY. Or try "http://localhost:8501/" if using the manual flow.
 DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1517513971744374949/_dHMw432cuIMEmEwEt-zSwj3Up8txjHiuKzwQ32TpBmeZmnol408YlxwT0sHkgAWdfjy"   # <--- LINE 43: Paste Discord Webhook URL here
 
 # 👆 ======================================================= 👆
@@ -67,7 +67,7 @@ def get_fyers_session():
         grant_type="authorization_code"
     )
 
-# Check if we are returning from Fyers with an Auth Code in the URL
+# Check if we are returning from Fyers with an Auth Code in the URL (The standard flow)
 if not st.session_state.access_token:
     if "auth_code" in st.query_params:
         auth_code = st.query_params["auth_code"]
@@ -183,9 +183,31 @@ def main():
         if APP_ID and SECRET_KEY and REDIRECT_URI:
             session = get_fyers_session()
             auth_url = session.generate_authcode()
+            
             st.markdown("<br><br>", unsafe_allow_html=True)
-            st.markdown(f'<div style="text-align: center;"><a href="{auth_url}" target="_self" class="login-btn">🔐 Click Here to Login to Fyers API</a></div>', unsafe_allow_html=True)
-            st.markdown("<br><p style='text-align:center; color:#64748B;'>Fyers will redirect you back here automatically after logging in.</p>", unsafe_allow_html=True)
+            st.markdown(f'<div style="text-align: center;"><a href="{auth_url}" target="_blank" class="login-btn">🔐 Click Here to Login to Fyers API</a></div>', unsafe_allow_html=True)
+            
+            # THE FAIL-SAFE MANUAL INPUT BOX
+            st.markdown("<hr>", unsafe_allow_html=True)
+            st.info("💡 **If the automatic redirect fails (e.g., Firefox error):**\n1. Click the login button above.\n2. Once you log in, look at the URL bar of the page it takes you to.\n3. Copy the long code right after `auth_code=` in the URL.\n4. Paste it in the box below and press Enter.")
+            
+            manual_auth_code = st.text_input("🔑 Paste Auth Code Here:", type="password")
+            
+            if manual_auth_code:
+                try:
+                    session.set_token(manual_auth_code)
+                    response = session.generate_token()
+                    
+                    if response.get("s") == "ok":
+                        st.session_state.access_token = response["access_token"]
+                        st.success("✅ Successfully Connected! Loading Radar...")
+                        time.sleep(1)
+                        st.rerun()
+                    else:
+                        st.error(f"Fyers Login Failed: {response.get('message', 'Unknown Error')}")
+                except Exception as e:
+                    st.error(f"Authentication Error: {str(e)}")
+            
         else:
             st.warning("⚠️ Waiting for App ID, Secret Key, and Redirect URI. Please enter them in Lines 40-42 of the script.")
         return
