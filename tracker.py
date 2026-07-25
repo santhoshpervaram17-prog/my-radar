@@ -50,7 +50,7 @@ if "access_token" not in st.session_state:
 
 APP_ID = "Y3YF5DNOVV-100"                # <--- LINE 40: Paste Fyers App ID (e.g., "ABC123XYZ-100")
 SECRET_KEY = "5GNRMNWCDG"            # <--- LINE 41: Paste Fyers Secret Key (Found next to App ID)
-REDIRECT_URI = "https://myradar.streamlit.app"          # <--- LINE 42: URL of your dashboard (e.g., "https://my-radar.streamlit.app/" or "http://localhost:8501/")
+REDIRECT_URI = "https://myradar.streamlit.app/"          # <--- LINE 42: URL of your dashboard (e.g., "https://my-radar.streamlit.app/" or "http://localhost:8501/")
 DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1517513971744374949/_dHMw432cuIMEmEwEt-zSwj3Up8txjHiuKzwQ32TpBmeZmnol408YlxwT0sHkgAWdfjy"   # <--- LINE 43: Paste Discord Webhook URL here
 
 # 👆 ======================================================= 👆
